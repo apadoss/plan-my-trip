@@ -19,6 +19,9 @@ const Header = () => {
                     <Link href="/register" className="text-sm font-semibold leading-6">
                         Login
                     </Link>
+                    <Link href="/register" className="text-sm font-semibold leading-6">
+                        Sign Up
+                    </Link>
                 </div>
             </nav>
         </header>
