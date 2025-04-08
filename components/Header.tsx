@@ -16,7 +16,7 @@ const Header = () => {
                 </div>               
 
                 <div className="text-primary-dark flex lg:flex-1 lg:justify-end lg:gap-4">
-                    <Link href="/register" className="text-sm font-semibold leading-6">
+                    <Link href="/login" className="text-sm font-semibold leading-6">
                         Login
                     </Link>
                     <Link href="/register" className="text-sm font-semibold leading-6">
