@@ -8,6 +8,7 @@
   --color-primary-light: #FFF5E6;
   --background: #ffffff;
   --foreground: #171717;
+  --color-primary-20: rgba(255, 153, 0, 0.2);
 
   --font-sans: Arial, Helvetica, sans-serif;
 }

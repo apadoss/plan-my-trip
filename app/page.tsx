@@ -2,9 +2,18 @@ import Link from "next/link";
 import Image from "next/image";
 
 const cities = [
-  { name: "Las Palmas de Gran Canaria", image: "/images/laspalmas.avif", slug: "las-palmas" },
+  { name: "Gran Canaria", image: "/images/laspalmas.jpg", slug: "las-palmas" },
   { name: "Tenerife", image: "/images/tenerife.png", slug: "tenerife" },
   { name: "Madrid", image: "/images/madrid.avif", slug: "madrid" },
+  { name: "Barcelona", image: "/images/barcelona.jpeg", slug: "barcelona" },
+  { name: "Sevilla", image: "/images/sevilla.jpg", slug: "sevilla" },
+  { name: "Valencia", image: "/images/valencia.jpg", slug: "valencia" },
+  { name: "Mallorca", image: "/images/mallorca.avif", slug: "mallorca" },
+  { name: "Málaga", image: "/images/malaga.jpg", slug: "malaga" },
+  { name: "Galicia", image: "/images/galicia.jpg", slug: "galicia" },
+  { name: "Ibiza", image: "/images/ibiza.webp", slug: "ibiza" },
+  { name: "Granada", image: "/images/granada.jpg", slug: "granada" },
+  { name: "Bilbao", image: "/images/bilbao.jpg", slug: "bilbao" }
 ];
 
 export default function Home() {
@@ -15,9 +24,9 @@ export default function Home() {
           Explore Destinations
         </h1>
       </div>
-      <div className="max-w-6xl w-full px-4 py-10 bg-[#fef5ed] shadow-md rounded-md mt-6 text-center">
+      <div className="max-w-6xl w-full px-4 py-10 bg-[var(--color-primary-20)] shadow-md rounded-md mt-6 text-center">
         <h2 className="text-2xl md:text-3xl font-semibold text-orange-700 mb-8">
-          Visit the most famous cities in the world!
+          Visit the most famous places Spain!
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -30,7 +39,7 @@ export default function Home() {
                     alt={city.name}
                     width={400}
                     height={250}
-                    className="object-cover w-full h-auto hover:brightness-75 transition duration-300"
+                    className="object-cover w-[400px] h-[250px] hover:brightness-75 transition duration-300"
                   />
                 </div>
                 <p className="mt-2 text-lg font-medium">{city.name}</p>
