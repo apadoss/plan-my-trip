@@ -31,7 +31,7 @@ export default function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {cities.map((city) => (
-            <Link key={city.name} href={`/details`}>
+            <Link key={city.name} href={`/details/${city.slug}`}>
               <div className="cursor-pointer transition duration-300 transform hover:scale-105">
                 <div className="rounded-lg overflow-hidden shadow hover:shadow-lg">
                   <Image
