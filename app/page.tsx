@@ -2,18 +2,18 @@ import Link from "next/link";
 import Image from "next/image";
 
 const cities = [
-  { name: "Gran Canaria", image: "/images/laspalmas.jpg", slug: "las-palmas" },
-  { name: "Tenerife", image: "/images/tenerife.png", slug: "tenerife" },
-  { name: "Madrid", image: "/images/madrid.avif", slug: "madrid" },
-  { name: "Barcelona", image: "/images/barcelona.jpeg", slug: "barcelona" },
-  { name: "Sevilla", image: "/images/sevilla.jpg", slug: "sevilla" },
-  { name: "Valencia", image: "/images/valencia.jpg", slug: "valencia" },
-  { name: "Mallorca", image: "/images/mallorca.avif", slug: "mallorca" },
-  { name: "Málaga", image: "/images/malaga.jpg", slug: "malaga" },
-  { name: "Galicia", image: "/images/galicia.jpg", slug: "galicia" },
-  { name: "Ibiza", image: "/images/ibiza.webp", slug: "ibiza" },
-  { name: "Granada", image: "/images/granada.jpg", slug: "granada" },
-  { name: "Bilbao", image: "/images/bilbao.jpg", slug: "bilbao" }
+  { name: "Gran Canaria", image: "/images/laspalmas.jpg", slug: "Gran-Canaria" },
+  { name: "Tenerife", image: "/images/tenerife.png", slug: "Tenerife" },
+  { name: "Madrid", image: "/images/madrid.avif", slug: "Madrid" },
+  { name: "Barcelona", image: "/images/barcelona.avif", slug: "Barcelona" },
+  { name: "Sevilla", image: "/images/sevilla.jpg", slug: "Sevilla" },
+  { name: "Valencia", image: "/images/valencia.jpg", slug: "Valencia" },
+  { name: "Mallorca", image: "/images/mallorca.avif", slug: "Mallorca" },
+  { name: "Málaga", image: "/images/malaga.jpg", slug: "Malaga" },
+  { name: "Galicia", image: "/images/galicia.jpg", slug: "Galicia" },
+  { name: "Ibiza", image: "/images/ibiza.webp", slug: "Ibiza" },
+  { name: "Granada", image: "/images/granada.jpg", slug: "Granada" },
+  { name: "Bilbao", image: "/images/bilbao.jpg", slug: "Bilbao" }
 ];
 
 export default function Home() {
@@ -31,7 +31,7 @@ export default function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {cities.map((city) => (
-            <Link key={city.name} href={`/destinations/${city.slug}`}>
+            <Link key={city.name} href={`/details`}>
               <div className="cursor-pointer transition duration-300 transform hover:scale-105">
                 <div className="rounded-lg overflow-hidden shadow hover:shadow-lg">
                   <Image
@@ -42,7 +42,7 @@ export default function Home() {
                     className="object-cover w-[400px] h-[250px] hover:brightness-75 transition duration-300"
                   />
                 </div>
-                <p className="mt-2 text-lg font-medium">{city.name}</p>
+                <p className="mt-2 text-lg font-medium text-black">{city.name}</p>
               </div>
             </Link>
           ))}
