@@ -1,14 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
+import { DateRange } from "react-date-range";
+import { addDays, differenceInDays } from "date-fns";
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
+import { useRouter } from "next/navigation";
 
 const interests = [
   "Adventure & Sports",
-  "Arts & Culture",
-  "Beach Leasure",
+  "Culture",
+  "Beach Leisure",
   "Food & Drink",
   "Historical & Education",
-  "Local Gems",
+  "Local Gem",
   "Road Trip",
   "Photography",
   "Nightlife & Entertainment",
@@ -20,7 +25,9 @@ const interests = [
 export default function PlanMyTrip() {
   const [form, setForm] = useState({
     destination: "",
-    date: "",
+    startDate: new Date(),
+    endDate: addDays(new Date(), 1),
+    numberOfDays: 2,
     budget: "",
     groupType: "",
     interests: [] as string[],
@@ -47,115 +54,158 @@ export default function PlanMyTrip() {
     }));
   };
 
+  const router = useRouter();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+  
+    if (!form.destination || !form.budget || !form.groupType) {
+      alert("Por favor completa todos los campos obligatorios.");
+      return;
+    }
+  
+    // Guardar en localStorage (o podrías usar context o query params)
+    localStorage.setItem("tripFormData", JSON.stringify(form));
+  
+    // Redirigir a /itinerary
+    router.push("/itinerary");
+  };
+
   return (
     <main className="flex-1 bg-white text-gray-800 flex flex-col">
-      {/* Page Header */}
+      {/* Encabezado */}
       <header className="bg-primary py-6 px-4 shadow-md flex items-center">
         <h1 className="text-2xl font-bold text-black text-center w-full">
           Tell us about your trip!
         </h1>
       </header>
 
-      {/* Intro Text */}
+      {/* Intro */}
       <p className="text-center mt-6 text-lg font-medium px-4 leading-relaxed">
         We will create an itinerary with the information you provide below.
       </p>
 
-      {/* Form Section */}
-      <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 p-8 w-full flex-1">
-        {/* Left Side */}
-        <div className="space-y-6">
-          <div>
-            <h2 className="font-semibold text-lg mb-2">Destinations</h2>
-            <input
-              name="destination"
-              value={form.destination}
-              onChange={handleInput}
-              placeholder="Enter name of city, country..."
-              className="w-full border rounded-md px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-orange-400"
-            />
-          </div>
+      <form onSubmit={handleSubmit}>
+      <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 p-8 w-full">
+  {/* Columna izquierda */}
+  <div className="space-y-6">
+    <div>
+      <h2 className="font-semibold text-lg mb-2">Destination</h2>
+      <input
+        name="destination"
+        value={form.destination}
+        onChange={handleInput}
+        placeholder="Enter city or country"
+        className="w-full border rounded-md px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-orange-400"
+      />
+    </div>
 
-          <div>
-            <h2 className="font-semibold text-lg mb-2">Trip dates and days</h2>
-            <input
-              name="date"
-              value={form.date}
-              onChange={handleInput}
-              placeholder="Enter dates"
-              className="w-full border rounded-md px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-orange-400"
-            />
-          </div>
+    <div>
+      <h2 className="font-semibold text-lg mb-2">Trip dates and days</h2>
+      <DateRange
+        editableDateInputs={true}
+        onChange={(item) => {
+          const start = item.selection.startDate!;
+          const end = item.selection.endDate!;
+          const days = differenceInDays(end, start) + 1;
 
-          <div>
-            <h2 className="font-semibold text-lg mb-2">Budget</h2>
-            <div className="flex flex-wrap gap-2">
-              {["Budget", "Mid-Range", "Luxury"].map((option) => (
-                <button
-                  key={option}
-                  type="button"
-                  onClick={() => handleSelect("budget", option)}
-                  className={`px-4 py-2 border rounded-md text-sm cursor-pointer transition duration-200 ${
-                    form.budget === option
-                      ? "bg-primary text-white"
-                      : "hover:bg-orange-100"
-                  }`}
-                >
-                  {option}
-                </button>
-              ))}
-            </div>
-          </div>
+          setForm((prev) => ({
+            ...prev,
+            startDate: start,
+            endDate: end,
+            numberOfDays: days,
+          }));
+        }}
+        moveRangeOnFirstSelection={false}
+        ranges={[
+          {
+            startDate: form.startDate,
+            endDate: form.endDate,
+            key: "selection",
+          },
+        ]}
+      />
+      <p className="text-sm mt-2 text-gray-600">
+        You selected {form.numberOfDays} day{form.numberOfDays !== 1 && "s"}
+      </p>
+    </div>
 
-          <div>
-            <h2 className="font-semibold text-lg mb-2">Who is travelling</h2>
-            <div className="flex flex-wrap gap-2">
-              {["Solo", "Couple", "Group", "Family with Kids"].map((type) => (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => handleSelect("groupType", type)}
-                  className={`px-4 py-2 border rounded-md text-sm cursor-pointer transition duration-200 ${
-                    form.groupType === type
-                      ? "bg-primary text-white"
-                      : "hover:bg-orange-100"
-                  }`}
-                >
-                  {type}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Right Side */}
-        <div>
-          <h2 className="font-semibold text-lg mb-4">Travel interests</h2>
-          <div className="flex flex-wrap gap-3">
-            {interests.map((interest) => (
-              <button
-                key={interest}
-                type="button"
-                onClick={() => handleToggleInterest(interest)}
-                className={`px-4 py-2 border rounded-md text-sm cursor-pointer transition duration-200 ${
-                  form.interests.includes(interest)
-                    ? "bg-primary text-white"
-                    : "hover:bg-orange-100"
-                }`}
-              >
-                {interest}
-              </button>
-            ))}
-          </div>
-        </div>
+    <div>
+      <h2 className="font-semibold text-lg mb-2">Budget</h2>
+      <div className="flex flex-wrap gap-2">
+        {["Low", "Mid-Range", "Luxury"].map((option) => (
+          <button
+            key={option}
+            type="button"
+            onClick={() => handleSelect("budget", option)}
+            className={`px-4 py-2 border rounded-md text-sm cursor-pointer transition duration-200 ${
+              form.budget === option
+                ? "bg-primary text-white"
+                : "hover:bg-orange-100"
+            }`}
+          >
+            {option}
+          </button>
+        ))}
       </div>
+    </div>
+  </div>
 
-      {/* Submit Button */}
-      <div className="flex justify-center py-8">
-        <button className="bg-orange-400 hover:bg-orange-500 text-white font-semibold px-8 py-3 rounded-md text-lg transition duration-200 cursor-pointer">
-          Plan My Trip
-        </button>
+  {/* Columna derecha */}
+  <div className="space-y-6">
+    <div>
+      <h2 className="font-semibold text-lg mb-4">Travel interests</h2>
+      <div className="flex flex-wrap gap-3">
+        {interests.map((interest) => (
+          <button
+            key={interest}
+            type="button"
+            onClick={() => handleToggleInterest(interest)}
+            className={`px-4 py-2 border rounded-md text-sm cursor-pointer transition duration-200 ${
+              form.interests.includes(interest)
+                ? "bg-primary text-white"
+                : "hover:bg-orange-100"
+            }`}
+          >
+            {interest}
+          </button>
+        ))}
       </div>
+    </div>
+
+    <div>
+      <h2 className="font-semibold text-lg mb-2">Who is travelling</h2>
+      <div className="flex flex-wrap gap-2">
+        {["Solo", "Couple", "Adventurers", "Family with kids"].map((type) => (
+          <button
+            key={type}
+            type="button"
+            onClick={() => handleSelect("groupType", type)}
+            className={`px-4 py-2 border rounded-md text-sm cursor-pointer transition duration-200 ${
+              form.groupType === type
+                ? "bg-primary text-white"
+                : "hover:bg-orange-100"
+            }`}
+          >
+            {type}
+          </button>
+        ))}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+        {/* Botón enviar */}
+        <div className="flex justify-center py-8">
+          <button
+            type="submit"
+            className="bg-orange-400 hover:bg-orange-500 text-white font-semibold px-8 py-3 rounded-md text-lg transition duration-200 cursor-pointer"
+          >
+            Plan My Trip
+          </button>
+        </div>
+      </form>
     </main>
   );
 }
