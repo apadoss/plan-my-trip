@@ -14,7 +14,7 @@ interface Attraction {
   country: string;
   region: string;
   duration: string;
-  price: string;
+  price: string; // "Low" | "Mid-range" | "Luxury"
 }
 
 export default function ItineraryPage() {
@@ -23,73 +23,90 @@ export default function ItineraryPage() {
   const [tripInfo, setTripInfo] = useState<any>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchItinerary = async () => {
       const stored = localStorage.getItem("tripFormData");
       if (!stored) return;
-
       const form = JSON.parse(stored);
       setTripInfo(form);
 
-      const ref = collection(db, "attractions");
-      const snapshot = await getDocs(ref);
-      const all = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as Attraction[];
+      // 1) Fetch all
+      const snapshot = await getDocs(collection(db, "attractions"));
+      const all = snapshot.docs.map((d) => ({
+        id: d.id,
+        ...(d.data() as Omit<Attraction, "id">),
+      }));
 
-      // Filter first by group and location
-      const baseFiltered = all.filter((item) => {
-        const matchesGroup = item.idealFor?.includes(form.groupType);
-        const matchesLocation =
-          item.country?.toLowerCase().includes(form.destination.toLowerCase()) ||
-          item.city?.toLowerCase().includes(form.destination.toLowerCase()) ||
-          item.region?.toLowerCase().includes(form.destination.toLowerCase());
-        return matchesGroup && matchesLocation;
+      // 2) Base filter: group + location
+      const base = all.filter((a) => {
+        const matchesGroup = a.idealFor.includes(form.groupType);
+        const loc = form.destination.toLowerCase();
+        const matchesLoc =
+          a.city.toLowerCase().includes(loc) ||
+          a.country.toLowerCase().includes(loc) ||
+          a.region.toLowerCase().includes(loc);
+        return matchesGroup && matchesLoc;
       });
 
-      // Then filter by interests from the base set
-      const interestFiltered = baseFiltered.filter((item) =>
-        item.categories?.some((cat: string) => form.interests.includes(cat))
+      // 3) Interest filter
+      const byInterest = base.filter((a) =>
+        a.categories.some((cat) => form.interests.includes(cat))
       );
 
-      // If there are any interest matches, use them; otherwise, fall back to the base filter
-      const filtered = interestFiltered.length > 0 ? interestFiltered : baseFiltered;
+      // 4) Price filter
+      const byBudget = (byInterest.length ? byInterest : base).filter(
+        (a) => a.price === form.budget
+      );
 
-      // Create the itinerary: one attraction per day; if there are not enough, add null for "free day"
-      const finalItinerary: (Attraction | null)[] = [];
+      // 5) Final set: prefer interest+budget, else interest, else base
+      let finalSet = byBudget;
+      if (!finalSet.length && byInterest.length) finalSet = byInterest;
+      if (!finalSet.length) finalSet = base;
+
+      // 6) Build one per day (or null)
+      const result: (Attraction | null)[] = [];
       for (let i = 0; i < form.numberOfDays; i++) {
-        finalItinerary.push(filtered[i] || null);
+        result.push(finalSet[i] || null);
       }
 
-      setItinerary(finalItinerary);
+      setItinerary(result);
       setLoading(false);
     };
 
-    fetchData();
+    fetchItinerary();
   }, []);
 
   if (loading)
-    return <p className="p-10 text-center text-lg">Loading itinerary...</p>;
+    return <p className="p-10 text-center text-lg">Loading itinerary…</p>;
 
   return (
     <main className="max-w-6xl mx-auto p-8 text-gray-800">
       <h1 className="text-3xl font-bold text-primary mb-6 text-center">
-        Your {tripInfo?.numberOfDays}-Day Itinerary
+        Your {tripInfo.numberOfDays}-Day Itinerary
       </h1>
 
-      {itinerary.map((activity, i) => (
-        <div key={i} className="mb-6 bg-primary-light p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-2 text-primary-dark">Day {i + 1}</h2>
-          {activity ? (
+      {itinerary.map((a, i) => (
+        <div
+          key={i}
+          className="mb-6 bg-primary-light p-6 rounded-lg shadow-md"
+        >
+          <h2 className="text-xl font-semibold mb-2 text-primary-dark">
+            Day {i + 1}
+          </h2>
+          {a ? (
             <>
-              <h3 className="text-lg font-bold">{activity.name}</h3>
+              <h3 className="text-lg font-bold">{a.name}</h3>
               <p className="text-sm text-gray-700 italic mb-2">
-                {activity.city}, {activity.region}
+                {a.city}, {a.region}
               </p>
-              <p className="mb-2">{activity.description}</p>
+              <p className="mb-2">{a.description}</p>
               <p className="text-sm text-gray-600">
-                Duration: {activity.duration} · Price: {activity.price}
+                Duration: {a.duration} · Price: {a.price}
               </p>
             </>
           ) : (
-            <p className="text-gray-600 italic">Free day or no activity recommended</p>
+            <p className="text-gray-600 italic">
+              Free day or no recommendation
+            </p>
           )}
         </div>
       ))}
