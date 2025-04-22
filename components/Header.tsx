@@ -16,6 +16,12 @@ const Header = () => {
           </Link>
         </div>
 
+        <div className="text-primary-dark flex items-center gap-4">
+          <Link href="/chatbot" className="text-lg font-semibold">
+            Chatbot
+          </Link>
+        </div>
+
         {/* Search Bar */}
         <div className="hidden md:flex items-center bg-gray-300 rounded-full px-4 py-2 w-full max-w-lg">
           <FaBars className="text-gray-600 mr-3" />
