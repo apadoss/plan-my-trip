@@ -94,7 +94,7 @@ export default function CityDetailsPage() {
           Iconic Landmarks & Monuments
         </div>
 
-        <h4 className="text-md font-bold mb-2">Lista de atracciones:</h4>
+        <h4 className="text-md font-bold mb-2">List of atractions:</h4>
         {attractions.length > 0 ? (
           <ul className="list-disc pl-6">
             {attractions.map((a) => (
