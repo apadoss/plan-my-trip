@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import db from "../../../firebase/firestore";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -12,7 +12,14 @@ interface Attraction {
   id: string;
   name?: string;
   description?: string;
-  location?: string;
+  categories?: string[];
+  idealFor?: string[];
+  city?: string;
+  country?: string;
+  region?: string;
+  duration?: string;
+  price?: string; // "Low" | "Mid-range" | "Luxury"
+  foto?: string;
 }
 
 interface CityData {
@@ -39,27 +46,37 @@ const cities: CityData[] = [
 
 export default function CityDetailsPage() {
   const { slug } = useParams();
-  const city = cities.find((c) => c.slug.toLowerCase() === (slug as string).toLowerCase());
+  const citySlug = (slug as string).toLowerCase(); 
+
+  const city = cities.find((c) => c.slug.toLowerCase() === citySlug);
 
   const [attractions, setAttractions] = useState<Attraction[]>([]);
-
   useEffect(() => {
     const fetchAttractions = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "attractions"));
+        if (!city) return;
+  
+        const cityNameWithoutHyphens = city.name.replace(/-/g, " ").trim();
+  
+        const q = query(
+          collection(db, "attractions"),
+          where("region", "==", cityNameWithoutHyphens.trim())       );
+        const querySnapshot = await getDocs(q);
+  
         const cityAttractions = querySnapshot.docs.map((doc) => ({
           ...doc.data(),
           id: doc.id,
         })) as Attraction[];
+  
         setAttractions(cityAttractions);
       } catch (error) {
         console.error("Error fetching attractions:", error);
       }
     };
-
+  
     fetchAttractions();
-  }, []);
-
+  }, [city]);
+  
   if (!city) return <div className="p-6">City not found.</div>;
 
   return (
@@ -94,15 +111,38 @@ export default function CityDetailsPage() {
           Iconic Landmarks & Monuments
         </div>
 
-        <h4 className="text-md font-bold mb-2">List of atractions:</h4>
+        <h4 className="text-md font-bold mb-2">Lista de atracciones:</h4>
         {attractions.length > 0 ? (
-          <ul className="list-disc pl-6">
+          <div className="space-y-6">
             {attractions.map((a) => (
-              <li key={a.id} className="text-md mb-1">
-                {a.name}
-              </li>
+              <div key={a.id} className="bg-[#ffe0b2] p-6 rounded-lg shadow-xl flex flex-col md:flex-row items-center space-x-4">
+                <div className="w-full md:w-1/3 mb-4 md:mb-0">
+                  {a.foto ? (
+                    <img
+                      src={a.foto}
+                      alt={`${a.name} photo`}
+                      width={300}
+                      height={200}
+                      className="rounded-md object-cover"
+                    />
+                  ) : (
+                    <div className="bg-gray-300 w-full h-24 rounded-md"></div>
+                  )}
+                </div>
+                <div className="w-full md:w-2/3">
+                  {a.name && <h5 className="text-2xl font-bold mb-2">{a.name}</h5>}
+                  {a.description && <p className="text-sm text-gray-700 mb-2">{a.description}</p>}
+                  {a.categories && <p><strong>Categories:</strong> {a.categories.join(", ")}</p>}
+                  {a.idealFor && <p><strong>Ideal for:</strong> {a.idealFor.join(", ")}</p>}
+                  {a.city && <p><strong>City:</strong> {a.city}</p>}
+                  {a.country && <p><strong>Country:</strong> {a.country}</p>}
+                  {a.region && <p><strong>Region:</strong> {a.region}</p>}
+                  {a.duration && <p><strong>Duration:</strong> {a.duration}</p>}
+                  {a.price && <p><strong>Price:</strong> {a.price}</p>}
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         ) : (
           <p className="text-sm italic">No attractions found.</p>
         )}
